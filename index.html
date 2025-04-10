@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Space Battle</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <img src="logo.png" alt="לוגו האתר" />
+    <h1>Space Battle</h1>
+  </header>
+
+  <nav>
+    <button onclick="showScreen('welcome')">דף הבית</button>
+    <button onclick="showScreen('about')">אודות</button>
+    <button onclick="logout()">התנתק</button>
+  </nav>
+
+  <main>
+    <div id="welcome" class="screen">
+      <!-- כפתור הרשמה והתחברות -->
+    </div>
+    <div id="register" class="screen">
+      <!-- טופס הרשמה -->
+    </div>
+    <div id="login" class="screen">
+      <!-- טופס התחברות -->
+    </div>
+    <div id="config" class="screen">
+      <!-- מסך קונפיגורציה -->
+    </div>
+    <div id="game" class="screen">
+      <!-- מסך המשחק -->
+    </div>
+    <div id="results" class="screen">
+      <!-- תוצאה סופית וטבלת שיאים -->
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2025 Space Battle | צור קשר: adva@example.com</p>
+  </footer>
+
+  <!-- Dialog Modal למסך אודות -->
+  <dialog id="aboutModal">
+    <button onclick="closeAbout()">X</button>
+    <div>
+      <!-- תוכן מסך אודות -->
+    </div>
+  </dialog>
+
+  <script src="main.js"></script>
+</body>
+</html>
