@@ -59,7 +59,18 @@
     </div>
 
     <div id="config" class="screen">
-      <!-- מסך קונפיגורציה -->
+      <h2>הגדרות משחק</h2>
+      <label>בחר מקש לירי:</label>
+      <input id="shootKeyInput" type="text" readonly placeholder="לחץ על מקש" />
+
+      <label for="gameTime">בחר זמן למשחק (בדקות):</label>
+      <select id="gameTime">
+        <option value="120">2 דקות</option>
+        <option value="180">3 דקות</option>
+        <option value="240">4 דקות</option>
+      </select>
+
+      <button id="startGameBtn">התחל משחק</button>
     </div>
 
     <div id="game" class="screen">
@@ -69,7 +80,6 @@
     <div id="results" class="screen">
       <!-- תוצאה סופית וטבלת שיאים -->
     </div>
-
   </main>
 
   <footer>
