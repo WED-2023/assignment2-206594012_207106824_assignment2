@@ -19,84 +19,61 @@
   </nav>
 
   <main>
+
     <div id="welcome" class="screen">
-      <!-- כפתור הרשמה והתחברות -->
+      <h2>ברוכים הבאים ל-Space Battle</h2>
+      <div class="welcome-buttons">
+        <button onclick="showScreen('register')">הרשמה</button>
+        <button onclick="showScreen('login')">התחברות</button>
+      </div>
     </div>
+
     <div id="register" class="screen">
       <!-- טופס הרשמה -->
+      <h2>הרשמה</h2>
+      <form id="registerForm">
+        <label>שם משתמש: <input type="text" name="username" required /></label><br />
+        <label>סיסמה: <input type="password" name="password" required /></label><br />
+        <label>אימות סיסמה: <input type="password" name="confirmPassword" required /></label><br />
+        <label>שם פרטי: <input type="text" name="firstName" required /></label><br />
+        <label>שם משפחה: <input type="text" name="lastName" required /></label><br />
+        <label>אימייל: <input type="email" name="email" required /></label><br />
+        <label>תאריך לידה:
+          <select name="day"></select>
+          <select name="month"></select>
+          <select name="year"></select>
+        </label><br />
+        <button type="submit">הירשם</button>
+      </form>
     </div>
+
     <div id="login" class="screen">
       <!-- טופס התחברות -->
+      <h2>התחברות</h2>
+      <form id="loginForm">
+        <label>שם משתמש: <input type="text" name="loginUser" required /></label><br />
+        <label>סיסמה: <input type="password" name="loginPass" required /></label><br />
+        <button type="submit">התחבר</button>
+      </form>
+      <div id="loginError" class="error-message"></div>
     </div>
+
     <div id="config" class="screen">
       <!-- מסך קונפיגורציה -->
     </div>
+
     <div id="game" class="screen">
       <!-- מסך המשחק -->
     </div>
+
     <div id="results" class="screen">
       <!-- תוצאה סופית וטבלת שיאים -->
     </div>
+
   </main>
 
   <footer>
-    <p>© 2025 Space Battle | צור קשר: adva@example.com</p>
-  </footer>
-
-  <!-- Dialog Modal למסך אודות -->
-  <dialog id="aboutModal">
-    <button onclick="closeAbout()">X</button>
-    <div>
-      <!-- תוכן מסך אודות -->
-    </div>
-  </dialog>
-
-  <script src="main.js"></script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="he">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Space Battle</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <header>
-    <img src="logo.png" alt="לוגו האתר" />
-    <h1>Space Battle</h1>
-  </header>
-
-  <nav>
-    <button onclick="showScreen('welcome')">דף הבית</button>
-    <button onclick="showScreen('about')">אודות</button>
-    <button onclick="logout()">התנתק</button>
-  </nav>
-
-  <main>
-    <div id="welcome" class="screen">
-      <!-- כפתור הרשמה והתחברות -->
-    </div>
-    <div id="register" class="screen">
-      <!-- טופס הרשמה -->
-    </div>
-    <div id="login" class="screen">
-      <!-- טופס התחברות -->
-    </div>
-    <div id="config" class="screen">
-      <!-- מסך קונפיגורציה -->
-    </div>
-    <div id="game" class="screen">
-      <!-- מסך המשחק -->
-    </div>
-    <div id="results" class="screen">
-      <!-- תוצאה סופית וטבלת שיאים -->
-    </div>
-  </main>
-
-  <footer>
-    <p>© 2025 Space Battle | צור קשר: adva@example.com</p>
+    <p>© 2025 Space Battle | צור קשר: adva_shani@help.com</p>
   </footer>
 
   <!-- Dialog Modal למסך אודות -->
