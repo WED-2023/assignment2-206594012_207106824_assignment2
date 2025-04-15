@@ -1,179 +1,348 @@
-const users = [
-    { username: "p", password: "testuser" } // משתמש ברירת מחדל
-  ];
-  
-  let currentUser = null;
-  let selectedShootKey = " ";
-  let selectedGameTime = 120;
-  
-  function showScreen(screenId) {
-    const screens = document.querySelectorAll(".screen");
-    screens.forEach((screen) => (screen.style.display = "none"));
-    document.getElementById(screenId).style.display = "block";
+// Space Battle
+
+// משתנים גלובליים למשחק
+let currentUser = null;
+let selectedShootKey = " ";
+let selectedGameTime = 120;
+let gameInterval = null;
+let gameTimer = null;
+let enemySpeed = 2;
+let shootCooldown = false;
+let playerX = 0, playerY = 0;
+let bullets = [], enemyBullets = [], enemies = [];
+let score = 0, lives = 3, timeLeft = 0;
+const users = [{ username: "p", password: "testuser" }];
+
+// פונקציית הצגת מסכים
+function showScreen(screenId) {
+  document.querySelectorAll(".screen").forEach(s => s.style.display = "none");
+  const target = document.getElementById(screenId);
+  if (target) target.style.display = "block";
+}
+
+// פונקציית יציאה
+function logout() {
+  currentUser = null;
+  alert("התנתקת בהצלחה!");
+  showScreen("welcome");
+}
+
+//פונקציה יציאה ממסך אודות
+function closeAbout() {
+  const aboutModal = document.getElementById("aboutModal");
+  if (aboutModal) {
+    aboutModal.close(); // סגירת הדיאלוג
   }
-  
-  function closeAbout() {
-    document.getElementById("aboutModal").close();
-  }
-  
-  function logout() {
-    currentUser = null;
-    alert("התנתקת בהצלחה!");
-    showScreen("welcome");
-  }
-  
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      closeAbout();
-    }
+}
+
+// טעינה ראשונית
+window.addEventListener("DOMContentLoaded", () => {
+
+  showUsers(); // הדפסת המשתמשים לקונסול בעת טעינת הדף
+
+  showScreen("welcome");
+  const day = document.querySelector("select[name='day']");
+  const month = document.querySelector("select[name='month']");
+  const year = document.querySelector("select[name='year']");
+  for (let i = 1; i <= 31; i++) day.innerHTML += `<option value="${i}">${i}</option>`;
+  ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"].forEach((m, i) => {
+    month.innerHTML += `<option value="${i + 1}">${m}</option>`;
   });
-  
-  window.addEventListener("DOMContentLoaded", () => {
-    const registerForm = document.getElementById("registerForm");
-    const loginForm = document.getElementById("loginForm");
-    const shootKeyInput = document.getElementById("shootKeyInput");
-    const gameTimeSelect = document.getElementById("gameTime");
-    const startGameBtn = document.getElementById("startGameBtn");
-  
-    // מילוי תאריך לידה
-    const daySelect = document.querySelector("select[name='day']");
-    const monthSelect = document.querySelector("select[name='month']");
-    const yearSelect = document.querySelector("select[name='year']");
-  
-    for (let i = 1; i <= 31; i++) {
-      const option = document.createElement("option");
-      option.value = i;
-      option.textContent = i;
-      daySelect.appendChild(option);
+  for (let y = new Date().getFullYear(); y >= 1900; y--) year.innerHTML += `<option value="${y}">${y}</option>`;
+
+  document.getElementById("registerForm").addEventListener("submit", handleRegister);
+  document.getElementById("loginForm").addEventListener("submit", handleLogin);
+  document.getElementById("shootKeyInput").addEventListener("keydown", (e) => {
+    e.preventDefault();
+    selectedShootKey = e.key;
+    e.target.value = e.key;
+  });
+  document.getElementById("gameTime").addEventListener("change", (e) => {
+    selectedGameTime = parseInt(e.target.value);
+  });
+  document.getElementById("startGameBtn").addEventListener("click", startGame);
+  document.getElementById("exitGameBtn").addEventListener("click", endGame);
+  document.getElementById("logoutBtn").addEventListener("click", logout);
+
+});
+
+function handleRegister(e) {
+  e.preventDefault();
+  const f = e.target;
+  const u = f.username.value.trim();
+  const p = f.password.value;
+  const cp = f.confirmPassword.value;
+  const fn = f.firstName.value.trim();
+  const ln = f.lastName.value.trim();
+  const email = f.email.value.trim();
+  const errors = [];
+
+  if (!u || !p || !cp || !fn || !ln || !email) errors.push("יש למלא את כל השדות.");
+  if (p.length < 8 || !/\d/.test(p) || !/[A-Za-z]/.test(p)) errors.push("סיסמה לא תקינה.");
+  if (p !== cp) errors.push("אימות סיסמה שגוי.");
+  if (/\d/.test(fn) || /\d/.test(ln)) errors.push("שמות לא יכולים להכיל מספרים.");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.push("אימייל לא תקין.");
+
+  if (errors.length > 0) return alert(errors.join("\n"));
+
+  users.push({ username: u, password: p });
+  alert("נרשמת בהצלחה!");
+  showScreen("login");
+}
+
+function handleLogin(e) {
+  e.preventDefault();
+  const u = e.target.loginUser.value.trim();
+  const p = e.target.loginPass.value.trim();
+  const found = users.find(user => user.username === u && user.password === p);
+
+  if (found) {
+    currentUser = found;
+    showScreen("config");
+  } else {
+    document.getElementById("loginError").textContent = "שם משתמש או סיסמה שגויים.";
+  }
+}
+
+function startGame() {
+    showScreen("game");
+    score = 0;
+    lives = 3;
+    timeLeft = selectedGameTime;
+    document.getElementById("scoreDisplay").textContent = `נקודות: ${score}`;
+    document.getElementById("livesDisplay").textContent = ` | פסילות: ${lives}`;
+    document.getElementById("timerDisplay").textContent = ` | זמן: ${formatTime(timeLeft)}`;
+    gameTimer = setInterval(() => {
+      timeLeft--;
+      document.getElementById("timerDisplay").textContent = ` | זמן: ${formatTime(timeLeft)}`;
+      if (timeLeft <= 0) endGame();
+    }, 1000);
+
+    // יצירת כפתור יציאה מהמשחק
+    const exitBtn = document.createElement("button");
+    exitBtn.textContent = "יציאה מהמשחק";
+    exitBtn.style.position = "absolute";
+    exitBtn.style.top = "10px";
+    exitBtn.style.left = "10px";
+    exitBtn.style.zIndex = 1000;
+    exitBtn.onclick = () => endGame();
+    document.getElementById("gameCanvas").appendChild(exitBtn);
+
+    // איפוס זירת המשחק
+    const canvas = document.getElementById("gameCanvas");
+    canvas.innerHTML = "";
+    bullets = [];
+    enemyBullets = [];
+    enemies = [];
+
+    // יצירת שחקן
+    const player = document.createElement("div");
+    player.id = "player";
+    player.style.position = "absolute";
+    player.style.width = "50px";
+    player.style.height = "50px";
+    player.style.background = "blue";
+    player.style.bottom = "0px";
+    playerX = window.innerWidth / 2 - 25;
+    playerY = 0;
+    player.style.left = playerX + "px";
+    canvas.appendChild(player);
+
+    // יצירת מטריצת אויבים (4 שורות x 5 עמודות)
+    for (let row = 0; row < 4; row++) {
+      for (let col = 0; col < 5; col++) {
+        const enemy = document.createElement("div");
+        enemy.className = "enemy";
+        enemy.dataset.row = row;
+        enemy.style.position = "absolute";
+        enemy.style.width = "40px";
+        enemy.style.height = "40px";
+        enemy.style.background = "red";
+        enemy.style.top = `${row * 60 + 50}px`;
+        enemy.style.left = `${col * 60 + 200}px`;
+        canvas.appendChild(enemy);
+        enemies.push(enemy);
+      }
     }
+
+    // תנועה וירי
+    document.addEventListener("keydown", handleGameKeys);
+    gameInterval = setInterval(updateGame, 50);
+    window.enemyShootInterval = setInterval(enemyShoot, 1000);
+
+        enemies.push(enemy);
   
-    const months = [
-      "ינואר",
-      "פברואר",
-      "מרץ",
-      "אפריל",
-      "מאי",
-      "יוני",
-      "יולי",
-      "אוגוסט",
-      "ספטמבר",
-      "אוקטובר",
-      "נובמבר",
-      "דצמבר",
-    ];
+
+  // תנועה של השחקן
+  function handleGameKeys(e) {
+    const player = document.getElementById("player");
+    if (!player) return;
+
+    if (e.key === "ArrowLeft") playerX -= 15;
+    if (e.key === "ArrowRight") playerX += 15;
+    if (e.key === "ArrowUp") playerY += 15;
+    if (e.key === "ArrowDown") playerY -= 15;
+    if (e.key === selectedShootKey && !shootCooldown) shoot(player);
+
+    // גבולות – תנועה ב־40% התחתונים של המסך
+    const maxY = window.innerHeight * 0.4;
+    playerX = Math.max(0, Math.min(window.innerWidth - 50, playerX));
+    playerY = Math.max(0, Math.min(maxY, playerY));
+
+    player.style.left = playerX + "px";
+    player.style.bottom = playerY + "px";
+  }
+
+  // ירי שחקן
+  function shoot(player) {
+    shootCooldown = true;
+    setTimeout(() => shootCooldown = false, 300);
+
+    const bullet = document.createElement("div");
+    bullet.className = "bullet";
+    bullet.style.position = "absolute";
+    bullet.style.width = "5px";
+    bullet.style.height = "15px";
+    bullet.style.background = "yellow";
+    bullet.style.left = playerX + 22 + "px";
+    bullet.style.bottom = playerY + 50 + "px";
+    document.getElementById("gameCanvas").appendChild(bullet);
+    bullets.push(bullet);
+  }
   
-    months.forEach((month, index) => {
-      const option = document.createElement("option");
-      option.value = index + 1;
-      option.textContent = month;
-      monthSelect.appendChild(option);
-    });
-  
-    const currentYear = new Date().getFullYear();
-    for (let i = currentYear; i >= 1900; i--) {
-      const option = document.createElement("option");
-      option.value = i;
-      option.textContent = i;
-      yearSelect.appendChild(option);
+}
+
+
+function formatTime(sec) {
+  const m = Math.floor(sec / 60).toString().padStart(2, '0');
+  const s = (sec % 60).toString().padStart(2, '0');
+  return `${m}:${s}`;
+}
+
+function updateGame() {
+  // תזוזת כדורי שחקן
+  bullets.forEach((b, i) => {
+    const bottom = parseInt(b.style.bottom);
+    b.style.bottom = bottom + 10 + "px";
+    if (bottom > window.innerHeight) {
+      b.remove();
+      bullets.splice(i, 1);
+      return;
     }
-  
-    // הצגת מסך welcome בעת טעינה
-    showScreen("welcome");
-  
-    // טיפול בהרשמה
-    registerForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-  
-      const form = e.target;
-      const username = form.username.value.trim();
-      const password = form.password.value;
-      const confirmPassword = form.confirmPassword.value;
-      const firstName = form.firstName.value.trim();
-      const lastName = form.lastName.value.trim();
-      const email = form.email.value.trim();
-  
-      const errors = [];
-  
-      if (!username || !password || !confirmPassword || !firstName || !lastName || !email) {
-        errors.push("כל השדות חייבים להיות מלאים.");
+
+    // בדיקת פגיעות באויבים
+    enemies.forEach((enemy, j) => {
+      const eRect = enemy.getBoundingClientRect();
+      const bRect = b.getBoundingClientRect();
+      if (
+        bRect.top < eRect.bottom &&
+        bRect.bottom > eRect.top &&
+        bRect.left < eRect.right &&
+        bRect.right > eRect.left
+      ) {
+        const row = parseInt(enemy.dataset.row);
+        const rowScore = [20, 15, 10, 5][row];
+        score += rowScore;
+        document.getElementById("scoreDisplay").textContent = `נקודות: ${score}`;
+
+        enemy.remove();
+        enemies.splice(j, 1);
+        b.remove();
+        bullets.splice(i, 1);
       }
-  
-      if (password.length < 8 || !/[A-Za-z]/.test(password) || !/\d/.test(password)) {
-        errors.push("הסיסמה חייבת להכיל לפחות 8 תווים, כולל אותיות ומספרים.");
-      }
-  
-      if (password !== confirmPassword) {
-        errors.push("אימות הסיסמה לא תואם לסיסמה.");
-      }
-  
-      if (/\d/.test(firstName) || /\d/.test(lastName)) {
-        errors.push("שם פרטי ושם משפחה לא יכולים להכיל מספרים.");
-      }
-  
-      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailPattern.test(email)) {
-        errors.push("כתובת המייל אינה חוקית.");
-      }
-  
-      if (errors.length > 0) {
-        alert(errors.join("\n"));
-        return;
-      }
-  
-      users.push({
-        username,
-        password,
-        firstName,
-        lastName,
-        email,
-        birthday: {
-          day: form.day.value,
-          month: form.month.value,
-          year: form.year.value,
-        },
-      });
-  
-      alert("נרשמת בהצלחה!");
-      showScreen("login");
     });
-  
-    // התחברות
-    loginForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      const loginUser = loginForm.loginUser.value.trim();
-      const loginPass = loginForm.loginPass.value;
-      const errorDiv = document.getElementById("loginError");
-  
-      const foundUser = users.find(
-        (u) => u.username === loginUser && u.password === loginPass
-      );
-  
-      if (foundUser) {
-        currentUser = foundUser;
-        errorDiv.textContent = "";
-        alert("התחברת בהצלחה!");
-        showScreen("config");
+  });
+
+// תנועת אויבים (הלוך ושוב)
+let shift = false;
+enemies.forEach(enemy => {
+  const currentLeft = parseInt(enemy.style.left);
+  const newLeft = currentLeft + enemySpeed;
+  enemy.style.left = newLeft + "px";
+  // בדיקה אם צריך להחליף כיוון
+  if (newLeft + 40 >= window.innerWidth || newLeft <= 0) shift = true;
+  });
+  if (shift) {
+    enemies.forEach(enemy => {
+      const currentLeft = parseInt(enemy.style.left);
+      enemy.style.left = (currentLeft - enemySpeed) + "px"; // מחזיר אותם לגבול
+    });
+    enemySpeed *= -1;
+  }
+
+// תנועת כדורים של אויבים
+  enemyBullets.forEach((b, i) => {
+    const top = parseInt(b.style.top);
+    b.style.top = top + 10 + "px";
+    if (top > window.innerHeight) {
+      b.remove();
+      enemyBullets.splice(i, 1);
+      return;
+    }
+
+    const player = document.getElementById("player");
+    if (!player) return;
+    const pRect = player.getBoundingClientRect();
+    const bRect = b.getBoundingClientRect();
+    if (
+      bRect.top < pRect.bottom &&
+      bRect.bottom > pRect.top &&
+      bRect.left < pRect.right &&
+      bRect.right > pRect.left
+    ) {
+      lives--;
+      document.getElementById("livesDisplay").textContent = ` | פסילות: ${lives}`;
+      b.remove();
+      enemyBullets.splice(i, 1);
+      if (lives <= 0) {
+        alert("You Lost!");
+        endGame();
       } else {
-        errorDiv.textContent = "שם משתמש או סיסמה שגויים.";
+        playerX = window.innerWidth / 2 - 25;
+        playerY = 0;
+        player.style.left = playerX + "px";
+        player.style.bottom = playerY + "px";
       }
-    });
-  
-    // קליטת מקש ירי
-    shootKeyInput.addEventListener("keydown", function (e) {
-      e.preventDefault();
-      shootKeyInput.value = e.key;
-      selectedShootKey = e.key;
-    });
-  
-    // זמן משחק
-    gameTimeSelect.addEventListener("change", function (e) {
-      selectedGameTime = parseInt(e.target.value);
-    });
-  
-    // התחלת משחק
-    startGameBtn.addEventListener("click", function () {
-      alert(`המשחק יתחיל עם מקש ירי: ${selectedShootKey}, למשך ${selectedGameTime} שניות.`);
-      showScreen("game");
-    });
+    }
   });
-  
+
+  // סיום אם אין אויבים
+  if (enemies.length === 0) {
+    endGame();
+    alert("Champion!");
+  }
+
+}
+ // ירי אויבים
+ function enemyShoot() {
+  if (enemyBullets.length > 0) {
+    const b = enemyBullets[enemyBullets.length - 1];
+    const top = parseInt(b.style.top);
+    if (top < window.innerHeight * 0.75) return;
+  }
+  const randomEnemy = enemies[Math.floor(Math.random() * enemies.length)];
+  if (!randomEnemy) return;
+  const bullet = document.createElement("div");
+  bullet.className = "enemy-bullet";
+  bullet.style.position = "absolute";
+  bullet.style.width = "5px";
+  bullet.style.height = "15px";
+  bullet.style.background = "white";
+  bullet.style.left = randomEnemy.offsetLeft + 18 + "px";
+  bullet.style.top = randomEnemy.offsetTop + 40 + "px";
+  document.getElementById("gameCanvas").appendChild(bullet);
+  enemyBullets.push(bullet);
+}
+
+
+function endGame() {
+  clearInterval(gameTimer);
+  clearInterval(gameInterval);
+  clearInterval(window.enemyShootInterval);
+  alert("המשחק נגמר!");
+  showScreen("results");
+}
+
+function showUsers() {
+  console.log("Current users:", users);
+}

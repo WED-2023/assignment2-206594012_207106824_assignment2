@@ -6,6 +6,11 @@ body {
     background-color: #f4f4f4;
   }
   
+  body.in-game {
+    background-color: black;
+    overflow: hidden;
+  }
+  
   header, footer {
     background-color: #222;
     color: #fff;
@@ -131,5 +136,19 @@ body {
     text-align: center;
     font-size: 1.2em;
     color: #333;
+  }
+  
+  #game {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: black;
+    z-index: 999;
+    overflow: hidden;
+    display: none; /* מוסתר כברירת מחדל */
+    justify-content: center;
+    align-items: flex-end;
   }
   

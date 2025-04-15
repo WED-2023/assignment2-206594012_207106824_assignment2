@@ -12,14 +12,15 @@
     <h1>Space Battle</h1>
   </header>
 
+    <!-- תפריט ניווט -->
   <nav>
     <button onclick="showScreen('welcome')">דף הבית</button>
-    <button onclick="showScreen('about')">אודות</button>
+    <button onclick="document.getElementById('aboutModal').showModal()">אודות</button>
     <button onclick="logout()">התנתק</button>
   </nav>
 
+   <!-- מסך ברוכים הבאים -->
   <main>
-
     <div id="welcome" class="screen">
       <h2>ברוכים הבאים ל-Space Battle</h2>
       <div class="welcome-buttons">
@@ -28,8 +29,8 @@
       </div>
     </div>
 
+   <!-- מסך הרשמה -->
     <div id="register" class="screen">
-      <!-- טופס הרשמה -->
       <h2>הרשמה</h2>
       <form id="registerForm">
         <label>שם משתמש: <input type="text" name="username" required /></label><br />
@@ -47,8 +48,8 @@
       </form>
     </div>
 
+    <!-- מסך התחברות -->
     <div id="login" class="screen">
-      <!-- טופס התחברות -->
       <h2>התחברות</h2>
       <form id="loginForm">
         <label>שם משתמש: <input type="text" name="loginUser" required /></label><br />
@@ -58,6 +59,7 @@
       <div id="loginError" class="error-message"></div>
     </div>
 
+    <!-- מסך קונפיגורציה -->
     <div id="config" class="screen">
       <h2>הגדרות משחק</h2>
       <label>בחר מקש לירי:</label>
@@ -73,15 +75,31 @@
       <button id="startGameBtn">התחל משחק</button>
     </div>
 
-    <div id="game" class="screen">
       <!-- מסך המשחק -->
+    <div id="game" class="screen">
+      <section id="gameInfo">
+        <span id="scoreDisplay">נקודות: 0</span>
+        <span id="livesDisplay"> | פסילות: 3</span>
+        <span id="timerDisplay"> | זמן: 00:00</span>
+      </section>
+
+      <section id="gameArea">
+        <div id="gameCanvas"></div>
+      </section>
+
+      <section id="gameControls">
+        <button id="exitGameBtn">יציאה מהמשחק</button>
+      </section>
     </div>
+
+    
 
     <div id="results" class="screen">
       <!-- תוצאה סופית וטבלת שיאים -->
     </div>
   </main>
 
+  <!-- כותרת תחתונה -->
   <footer>
     <p>© 2025 Space Battle | צור קשר: adva_shani@help.com</p>
   </footer>
@@ -90,7 +108,10 @@
   <dialog id="aboutModal">
     <button onclick="closeAbout()">X</button>
     <div>
-      <!-- תוכן מסך אודות -->
+      <h3>אודות המשחק</h3>
+      <p>פיתוח על ידי אדוה חלמיש - BGU 2025</p>
+      <p>שימוש ב-JavaScript, HTML5, CSS3 ללא פלאגינים חיצוניים</p>
+
     </div>
   </dialog>
 
