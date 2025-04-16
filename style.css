@@ -4,8 +4,10 @@ body {
     margin: 0;
     padding: 0;
     background-color: #f4f4f4;
+    min-width: 1440px;
+    min-height: 900px;
   }
-  
+
   body.in-game {
     background-color: black;
     overflow: hidden;
@@ -125,11 +127,16 @@ body {
   }
   
   #gameCanvas {
-    display: block;
+    position: relative;
+    width: 100%;
+    height: 600px;        /* גובה קטן יותר */
+    max-width: 1000px;    /* רוחב קטן יותר */
     margin: 0 auto;
+    background-color: black;
     border: 2px solid black;
-    background-color: #000;
+    overflow: hidden;
   }
+  
   
   #gameInfo {
     margin-top: 15px;

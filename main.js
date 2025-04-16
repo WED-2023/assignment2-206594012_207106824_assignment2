@@ -6,7 +6,7 @@ let selectedShootKey = " ";
 let selectedGameTime = 120;
 let gameInterval = null;
 let gameTimer = null;
-let enemySpeed = 2;
+let enemySpeed = 5;
 let shootCooldown = false;
 let playerX = 0, playerY = 0;
 let bullets = [], enemyBullets = [], enemies = [];
@@ -169,9 +169,18 @@ function startGame() {
     document.addEventListener("keydown", handleGameKeys);
     gameInterval = setInterval(updateGame, 50);
     window.enemyShootInterval = setInterval(enemyShoot, 1000);
+    window.enemySpeedInterval = setInterval(boostEnemySpeed, 5000);
 
-        enemies.push(enemy);
-  
+    enemies.push(enemy);
+
+    let speedBoosts = 0;
+
+    function boostEnemySpeed() {
+      if (speedBoosts >= 4) return;
+      speedBoosts++;
+      enemySpeed += 2; // תאוצה הדרגתית
+    }
+
 
   // תנועה של השחקן
   function handleGameKeys(e) {
@@ -185,10 +194,11 @@ function startGame() {
     if (e.key === selectedShootKey && !shootCooldown) shoot(player);
 
     // גבולות – תנועה ב־40% התחתונים של המסך
+    const canvasWidth = document.getElementById("gameCanvas").clientWidth;
     const maxY = window.innerHeight * 0.4;
-    playerX = Math.max(0, Math.min(window.innerWidth - 50, playerX));
+    playerX = Math.max(0, Math.min(canvasWidth - 50, playerX));
     playerY = Math.max(0, Math.min(maxY, playerY));
-
+    
     player.style.left = playerX + "px";
     player.style.bottom = playerY + "px";
   }
@@ -213,6 +223,7 @@ function startGame() {
 }
 
 
+
 function formatTime(sec) {
   const m = Math.floor(sec / 60).toString().padStart(2, '0');
   const s = (sec % 60).toString().padStart(2, '0');
@@ -223,7 +234,7 @@ function updateGame() {
   // תזוזת כדורי שחקן
   bullets.forEach((b, i) => {
     const bottom = parseInt(b.style.bottom);
-    b.style.bottom = bottom + 10 + "px";
+    b.style.bottom = bottom + 20 + "px";
     if (bottom > window.innerHeight) {
       b.remove();
       bullets.splice(i, 1);
@@ -258,22 +269,28 @@ let shift = false;
 enemies.forEach(enemy => {
   const currentLeft = parseInt(enemy.style.left);
   const newLeft = currentLeft + enemySpeed;
+  const canvasWidth = document.getElementById("gameCanvas").clientWidth;
   enemy.style.left = newLeft + "px";
   // בדיקה אם צריך להחליף כיוון
-  if (newLeft + 40 >= window.innerWidth || newLeft <= 0) shift = true;
-  });
+  if (newLeft + 40 >= canvasWidth || newLeft <= 0) shift = true;
+});
   if (shift) {
-    enemies.forEach(enemy => {
-      const currentLeft = parseInt(enemy.style.left);
-      enemy.style.left = (currentLeft - enemySpeed) + "px"; // מחזיר אותם לגבול
-    });
     enemySpeed *= -1;
-  }
+    enemies.forEach(enemy => {
+      const currentTop = parseInt(enemy.style.top);
+      enemy.style.top = (currentTop + 20) + "px";
+      // התאמה לגבולות - החזרת אויבים לגבול אם עברו
+      const left = parseInt(enemy.style.left);
+      if (left < 0) enemy.style.left = "0px";
+      if (left + 40 > window.innerWidth) enemy.style.left = (window.innerWidth - 40) + "px";
+    });
+}
 
 // תנועת כדורים של אויבים
   enemyBullets.forEach((b, i) => {
     const top = parseInt(b.style.top);
-    b.style.top = top + 10 + "px";
+    const bulletSpeed = parseInt(b.dataset.speed || "30");
+    b.style.top = top + bulletSpeed + "px";
     if (top > window.innerHeight) {
       b.remove();
       enemyBullets.splice(i, 1);
@@ -315,11 +332,14 @@ enemies.forEach(enemy => {
 }
  // ירי אויבים
  function enemyShoot() {
+  const canvas = document.getElementById("gameCanvas");
+  const canvasHeight = canvas.clientHeight;
   if (enemyBullets.length > 0) {
     const b = enemyBullets[enemyBullets.length - 1];
     const top = parseInt(b.style.top);
-    if (top < window.innerHeight * 0.75) return;
+    if (top < canvasHeight * 0.75) return;
   }
+
   const randomEnemy = enemies[Math.floor(Math.random() * enemies.length)];
   if (!randomEnemy) return;
   const bullet = document.createElement("div");
@@ -330,9 +350,11 @@ enemies.forEach(enemy => {
   bullet.style.background = "white";
   bullet.style.left = randomEnemy.offsetLeft + 18 + "px";
   bullet.style.top = randomEnemy.offsetTop + 40 + "px";
+  bullet.dataset.speed = "30";
   document.getElementById("gameCanvas").appendChild(bullet);
   enemyBullets.push(bullet);
 }
+
 
 
 function endGame() {
