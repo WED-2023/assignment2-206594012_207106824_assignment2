@@ -8,9 +8,10 @@
 </head>
 <body>
   <header>
-    <img src="logo.png" alt="לוגו האתר" />
+    <img src="imagesspace-chicken.png" alt="Space Chicken" style="max-width: 200px; display: block; margin: 0 auto;" />
     <h1>Space Battle</h1>
   </header>
+
 
     <!-- תפריט ניווט -->
   <nav>
@@ -22,7 +23,8 @@
    <!-- מסך ברוכים הבאים -->
   <main>
     <div id="welcome" class="screen">
-      <h2>ברוכים הבאים ל-Space Battle</h2>
+      <h2 style="text-align: center;">ברוכים הבאים ל-Space Battle</h2>
+      <p style="text-align: center; font-size: 18px;">שני זילברברג 207106824 || אדוה חלמיש 206594012</p>
       <div class="welcome-buttons">
         <button onclick="showScreen('register')">הרשמה</button>
         <button onclick="showScreen('login')">התחברות</button>
@@ -71,6 +73,8 @@
         <option value="180">3 דקות</option>
         <option value="240">4 דקות</option>
       </select>
+      <label for="shipColor">בחר צבע לחללית:</label>
+      <input type="color" id="shipColor" name="shipColor" value="#00ffcc" />
 
       <button id="startGameBtn">התחל משחק</button>
     </div>
@@ -89,6 +93,7 @@
 
       <section id="gameControls">
         <button id="exitGameBtn">יציאה מהמשחק</button>
+        <button id="newGameBtn">משחק חדש</button>
       </section>
     </div>
 
@@ -96,6 +101,9 @@
 
     <div id="results" class="screen">
       <!-- תוצאה סופית וטבלת שיאים -->
+       <p> your score is </p>
+       <!--use Element scoredisplay-->>
+
     </div>
   </main>
 
@@ -109,12 +117,23 @@
     <button onclick="closeAbout()">X</button>
     <div>
       <h3>אודות המשחק</h3>
-      <p>פיתוח על ידי אדוה חלמיש - BGU 2025</p>
+      <p> פותח על ידי אדוה חלמיש ושני זילברברג - BGU 2025</p>
       <p>שימוש ב-JavaScript, HTML5, CSS3 ללא פלאגינים חיצוניים</p>
+      <button onclick="closeAbout()" style="margin-top: 20px;">יציאה</button>
+      <h4>מה מימשנו במשחק:</h4>
+      <ul>
+        <li>🎮 <strong>הוראות משחק אינטואיטיביות</strong> – השחקן בוחר מקש לירי, צבע חללית וזמן למשחק.</li>
+        <li>🕒 <strong>טיימר</strong> – מוצג במהלך המשחק ומעדכן את הזמן שנותר עד סיום המשחק.</li>
+        <li>💥 <strong>סוג ירי מיוחד</strong> – אפשרות לירי בעת לחיצה עם מקש שנבחר על ידי השחקן לפני המשחק.</li>
+        <li>🚨 <strong>מערכת פסילות</strong> – השחקן מקבל 3 פסילות, כל פגיעה מחללית אויב גורמת לאובדן פסילה.</li>
+        <li>🔊 <strong>מוזיקה וצלילים</strong> – מנגינת רקע, צליל פגיעה באויב, וצליל כשהשחקן נפגע.</li>
+        <li>🚀 <strong>עיצוב דינאמי</strong> – רקע חלל, חללית עם צבע מותאם אישית, אויבים עם צבעים לפי ניקוד.</li>
+      </ul>
 
     </div>
   </dialog>
-
+  <audio id="playerHitSound" src="audio/lose.wav"></audio>
+  <audio id="hitEnemySound" src="audio/hit.mp3"></audio>
   <script src="main.js"></script>
 </body>
 </html>

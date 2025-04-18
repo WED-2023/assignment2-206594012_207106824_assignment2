@@ -11,6 +11,12 @@ let shootCooldown = false;
 let playerX = 0, playerY = 0;
 let bullets = [], enemyBullets = [], enemies = [];
 let score = 0, lives = 3, timeLeft = 0;
+let selectedShipColor = "#00ffcc"; // צבע ברירת מחדל
+let bgMusic = new Audio("audio/music.mp3");
+const hitEnemySound = document.getElementById("hitEnemySound");
+const playerHitSound = document.getElementById("playerHitSound");
+bgMusic.loop = true;
+bgMusic.volume = 0.3;
 const users = [{ username: "p", password: "testuser" }];
 
 // פונקציית הצגת מסכים
@@ -26,6 +32,21 @@ function logout() {
   alert("התנתקת בהצלחה!");
   showScreen("welcome");
 }
+document.getElementById("aboutModal").addEventListener("click", function (event) {
+  const dialog = this;
+  const rect = dialog.getBoundingClientRect();
+
+  // נבדוק אם הלחיצה לא הייתה בתוך הדיאלוג
+  const isClickInside =
+    event.clientX >= rect.left &&
+    event.clientX <= rect.right &&
+    event.clientY >= rect.top &&
+    event.clientY <= rect.bottom;
+
+  if (!isClickInside) {
+    dialog.close();
+  }
+});
 
 //פונקציה יציאה ממסך אודות
 function closeAbout() {
@@ -34,10 +55,16 @@ function closeAbout() {
     aboutModal.close(); // סגירת הדיאלוג
   }
 }
+function openAbout() {
+  const aboutModal = document.getElementById("aboutModal");
+  if (aboutModal) {
+    aboutModal.showModal();
+  }
+}
+
 
 // טעינה ראשונית
 window.addEventListener("DOMContentLoaded", () => {
-
   showUsers(); // הדפסת המשתמשים לקונסול בעת טעינת הדף
 
   showScreen("welcome");
@@ -60,9 +87,15 @@ window.addEventListener("DOMContentLoaded", () => {
   document.getElementById("gameTime").addEventListener("change", (e) => {
     selectedGameTime = parseInt(e.target.value);
   });
+  document.getElementById("shipColor").addEventListener("input", (e) => {
+    selectedShipColor = e.target.value;
+  });
+  document.getElementById("newGameBtn").addEventListener("click", startNewGame);
+
   document.getElementById("startGameBtn").addEventListener("click", startGame);
   document.getElementById("exitGameBtn").addEventListener("click", endGame);
   document.getElementById("logoutBtn").addEventListener("click", logout);
+
 
 });
 
@@ -109,6 +142,7 @@ function startGame() {
     score = 0;
     lives = 3;
     timeLeft = selectedGameTime;
+    bgMusic.currentTime = 0;
     document.getElementById("scoreDisplay").textContent = `נקודות: ${score}`;
     document.getElementById("livesDisplay").textContent = ` | פסילות: ${lives}`;
     document.getElementById("timerDisplay").textContent = ` | זמן: ${formatTime(timeLeft)}`;
@@ -117,6 +151,9 @@ function startGame() {
       document.getElementById("timerDisplay").textContent = ` | זמן: ${formatTime(timeLeft)}`;
       if (timeLeft <= 0) endGame();
     }, 1000);
+    bgMusic.play().catch((e) => {
+      console.warn("הדפדפן חסם השמעה אוטומטית:", e);
+    });
 
     // יצירת כפתור יציאה מהמשחק
     const exitBtn = document.createElement("button");
@@ -141,7 +178,7 @@ function startGame() {
     player.style.position = "absolute";
     player.style.width = "50px";
     player.style.height = "50px";
-    player.style.background = "blue";
+    player.style.background = selectedShipColor;
     player.style.bottom = "0px";
     playerX = window.innerWidth / 2 - 25;
     playerY = 0;
@@ -224,6 +261,8 @@ function startGame() {
 
 
 
+
+
 function formatTime(sec) {
   const m = Math.floor(sec / 60).toString().padStart(2, '0');
   const s = (sec % 60).toString().padStart(2, '0');
@@ -257,6 +296,9 @@ function updateGame() {
         document.getElementById("scoreDisplay").textContent = `נקודות: ${score}`;
 
         enemy.remove();
+        const hitEnemySound = document.getElementById("hitEnemySound");
+        hitEnemySound.currentTime = 0;
+        hitEnemySound.play();
         enemies.splice(j, 1);
         b.remove();
         bullets.splice(i, 1);
@@ -309,6 +351,9 @@ enemies.forEach(enemy => {
     ) {
       lives--;
       document.getElementById("livesDisplay").textContent = ` | פסילות: ${lives}`;
+      const playerHitSound = document.getElementById("playerHitSound");
+      playerHitSound.currentTime = 0;
+      playerHitSound.play();
       b.remove();
       enemyBullets.splice(i, 1);
       if (lives <= 0) {
@@ -355,15 +400,49 @@ enemies.forEach(enemy => {
   enemyBullets.push(bullet);
 }
 
-
-
-function endGame() {
+function startNewGame() {
+  // ניקוי משחק קודם בלי לשמור תוצאה
   clearInterval(gameTimer);
   clearInterval(gameInterval);
   clearInterval(window.enemyShootInterval);
-  alert("המשחק נגמר!");
-  showScreen("results");
+  clearInterval(window.enemySpeedInterval);
+
+  // עצירת מוזיקה אם מופעלת
+  if (bgMusic) {
+    bgMusic.pause();
+    bgMusic.currentTime = 0;
+  }
+
+  // הסתרת תוצאה קודמת, התחלה נקייה
+  const canvas = document.getElementById("gameCanvas");
+  if (canvas) canvas.innerHTML = "";
+  
+  // התחלת משחק חדש
+  startGame();
 }
+
+
+
+function endGame(saveScore = true) {
+  clearInterval(gameTimer);
+  clearInterval(gameInterval);
+  clearInterval(window.enemyShootInterval);
+
+  if (bgMusic) {
+    bgMusic.pause();
+    bgMusic.currentTime = 0;
+  }
+
+  if (saveScore) {
+    alert("You can do better ");
+    showScreen("results");
+    // פה תוכל להוסיף לקוד שלך שמירה לטבלת שיאים
+  } else {
+    // לא שומרים תוצאה, פשוט מחזירים למסך קונפיגורציה
+    showScreen("config");
+  }
+}
+
 
 function showUsers() {
   console.log("Current users:", users);
