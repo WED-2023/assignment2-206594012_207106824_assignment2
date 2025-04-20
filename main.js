@@ -17,16 +17,11 @@ const hitEnemySound = document.getElementById("hitEnemySound");
 const playerHitSound = document.getElementById("playerHitSound");
 bgMusic.loop = true;
 bgMusic.volume = 0.3;
-// let users = JSON.parse(localStorage.getItem("users")) || [
-//   { username: "p", password: "testuser" }
-// ];
 let users = JSON.parse(localStorage.getItem("registeredUsers")) || [
   { username: "p", password: "testuser" }
 ];
 localStorage.setItem("registeredUsers", JSON.stringify(users));
 
-
-// const users = [{ username: "p", password: "testuser" }];
 let scoresHistory = [];//הוספתי
 
 // פונקציית הצגת מסכים
@@ -244,8 +239,13 @@ function startGame() {
       document.getElementById("timerDisplay").textContent = ` | זמן: ${formatTime(timeLeft)}`;
       
       if (timeLeft <= 0) {
-        clearInterval(gameTimer);  // עוצרים את הטיימר
-        updateGame();              // מבצעים בדיקה מיידית של מצב המשחק
+        if (score < 100) {
+          alert("You can do better " + score);
+          endGame(true,false)
+        } else {
+          alert("Winner!");
+          endGame(true,false)
+        }
       }
     }, 1000);
     
@@ -465,20 +465,8 @@ enemies.forEach(enemy => {
       playerHitSound.currentTime = 0;
       playerHitSound.play();
       b.remove();
-      enemyBullets.splice(i, 1);
-      if (timeLeft <= 0) {
-        if (score < 100) {
-          alert("You can do better " + score);
-          endGame(true,false)
-        } else {
-          alert("Winner!");
-          endGame(true,false)
-
-        }
-      }
+      enemyBullets.splice(i, 1);    
       
-      
-
       if (lives <= 0) {
         alert("You Lost!");
         endGame(true, true);
