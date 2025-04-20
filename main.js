@@ -17,9 +17,14 @@ const hitEnemySound = document.getElementById("hitEnemySound");
 const playerHitSound = document.getElementById("playerHitSound");
 bgMusic.loop = true;
 bgMusic.volume = 0.3;
-let users = JSON.parse(localStorage.getItem("users")) || [
+// let users = JSON.parse(localStorage.getItem("users")) || [
+//   { username: "p", password: "testuser" }
+// ];
+let users = JSON.parse(localStorage.getItem("registeredUsers")) || [
   { username: "p", password: "testuser" }
 ];
+localStorage.setItem("registeredUsers", JSON.stringify(users));
+
 
 // const users = [{ username: "p", password: "testuser" }];
 let scoresHistory = [];//הוספתי
@@ -174,18 +179,44 @@ function handleLogin(e) {
   const u = e.target.loginUser.value.trim();
   const p = e.target.loginPass.value.trim();
 
-  const savedUsers = JSON.parse(localStorage.getItem("registeredUsers")) || [];
+  // שליפה מה-storage
+  let savedUsers = JSON.parse(localStorage.getItem("registeredUsers")) || [];
+
+  // הוספה של משתמש ברירת מחדל אם לא קיים
+  if (!savedUsers.some(user => user.username === "p")) {
+    savedUsers.push({ username: "p", password: "testuser" });
+    localStorage.setItem("registeredUsers", JSON.stringify(savedUsers));
+  }
+
+  // חיפוש משתמש תואם
   const found = savedUsers.find(user => user.username === u && user.password === p);
 
   if (found) {
     currentUser = found;
     scoresHistory = [];
-
     showScreen("config");
   } else {
     document.getElementById("loginError").textContent = "שם משתמש או סיסמה שגויים.";
   }
 }
+
+// function handleLogin(e) {
+//   e.preventDefault();
+//   const u = e.target.loginUser.value.trim();
+//   const p = e.target.loginPass.value.trim();
+
+//   const savedUsers = JSON.parse(localStorage.getItem("registeredUsers")) || [];
+//   const found = savedUsers.find(user => user.username === u && user.password === p);
+
+//   if (found) {
+//     currentUser = found;
+//     scoresHistory = [];
+
+//     showScreen("config");
+//   } else {
+//     document.getElementById("loginError").textContent = "שם משתמש או סיסמה שגויים.";
+//   }
+// }
 
 
 // function handleLogin(e) {
