@@ -3,7 +3,7 @@
 // משתנים גלובליים למשחק
 let currentUser = null;
 let selectedShootKey = " ";
-let selectedGameTime = 10;
+let selectedGameTime = 120;
 let gameInterval = null;
 let gameTimer = null;
 let enemySpeed = 5;
@@ -242,8 +242,13 @@ function startGame() {
     gameTimer = setInterval(() => {
       timeLeft--;
       document.getElementById("timerDisplay").textContent = ` | זמן: ${formatTime(timeLeft)}`;
-      if (timeLeft <= 0) endGame();
+      
+      if (timeLeft <= 0) {
+        clearInterval(gameTimer);  // עוצרים את הטיימר
+        updateGame();              // מבצעים בדיקה מיידית של מצב המשחק
+      }
     }, 1000);
+    
     bgMusic.play().catch((e) => {
       console.warn("הדפדפן חסם השמעה אוטומטית:", e);
     });
