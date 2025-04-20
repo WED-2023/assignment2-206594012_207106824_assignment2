@@ -635,7 +635,7 @@ function endGame(saveScore = true, didLose = false) {
     const existingScores = JSON.parse(localStorage.getItem(key)) || [];
 
     existingScores.push(score);
-    localStorage.setItem(key, JSON.stringify(existingScores)); // ✅ שמירה בפועל
+    localStorage.setItem(key, JSON.stringify(existingScores));
 
     displayScoreTable(existingScores, existingScores.length - 1); // ✅ הצגת טבלה
 
