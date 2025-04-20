@@ -151,29 +151,6 @@ function handleRegister(e) {
 }
 
 
-// function handleRegister(e) {
-//   e.preventDefault();
-//   const f = e.target;
-//   const u = f.username.value.trim();
-//   const p = f.password.value;
-//   const cp = f.confirmPassword.value;
-//   const fn = f.firstName.value.trim();
-//   const ln = f.lastName.value.trim();
-//   const email = f.email.value.trim();
-//   const errors = [];
-
-//   if (!u || !p || !cp || !fn || !ln || !email) errors.push("יש למלא את כל השדות.");
-//   if (p.length < 8 || !/\d/.test(p) || !/[A-Za-z]/.test(p)) errors.push("הסיסמה צריכה להכיל לפחות 8 תווים של אותיות ומספרים");
-//   if (p !== cp) errors.push("אימות סיסמה שגוי.");
-//   if (/\d/.test(fn) || /\d/.test(ln)) errors.push("שמות לא יכולים להכיל מספרים.");
-//   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.push("אימייל לא תקין.");
-
-//   if (errors.length > 0) return alert(errors.join("\n"));
-
-//   users.push({ username: u, password: p });
-//   alert("נרשמת בהצלחה!");
-//   showScreen("login");
-// }
 function handleLogin(e) {
   e.preventDefault();
   const u = e.target.loginUser.value.trim();
@@ -200,91 +177,6 @@ function handleLogin(e) {
   }
 }
 
-// function handleLogin(e) {
-//   e.preventDefault();
-//   const u = e.target.loginUser.value.trim();
-//   const p = e.target.loginPass.value.trim();
-
-//   const savedUsers = JSON.parse(localStorage.getItem("registeredUsers")) || [];
-//   const found = savedUsers.find(user => user.username === u && user.password === p);
-
-//   if (found) {
-//     currentUser = found;
-//     scoresHistory = [];
-
-//     showScreen("config");
-//   } else {
-//     document.getElementById("loginError").textContent = "שם משתמש או סיסמה שגויים.";
-//   }
-// }
-
-
-// function handleLogin(e) {
-//   e.preventDefault();
-//   const u = e.target.loginUser.value.trim();
-//   const p = e.target.loginPass.value.trim();
-//   const found = users.find(user => user.username === u && user.password === p);
-
-//   if (found) {
-//     currentUser = found;
-//     scoresHistory = [] //הוספתי
-//     showScreen("config");
-//   } else {
-//     document.getElementById("loginError").textContent = "שם משתמש או סיסמה שגויים.";
-//   }
-// }
-
-// function displayScoreTable(scores = []) {
-//   const resultsDiv = document.getElementById("results");
-//   resultsDiv.innerHTML = `<h3 style="text-align: center; font-size: 24px;">🏆 טבלת שיאים אישית</h3>`;
-
-//   const currentScore = scores[scores.length - 1]; // המשחק האחרון ששוחק
-//   const currentScoreIndex = scores.length - 1;
-
-//   const sortedScores = [...scores]
-//     .map((val, idx) => ({ val, originalIndex: idx }))
-//     .sort((a, b) => b.val - a.val); // מיון מהגבוה לנמוך עם האינדקסים המקוריים
-
-//   const table = document.createElement("table");
-//   table.className = "score-table";
-
-//   const headerRow = table.insertRow();
-//   headerRow.innerHTML = `<th>מקום</th><th>ניקוד</th>`;
-
-//   sortedScores.forEach((entry, i) => {
-//     const row = table.insertRow();
-//     row.innerHTML = `<td>${i + 1}</td><td>${entry.val}</td>`;
-
-//     // סימון ירוק אם זו התוצאה של המשחק הנוכחי
-//     if (entry.originalIndex === currentScoreIndex) {
-//       row.classList.add("current-score");
-//     }
-//   });
-
-//   resultsDiv.appendChild(table);
-
-//   const buttonsContainer = document.createElement("div");
-//   buttonsContainer.className = "results-buttons";
-
-//   const newGameBtn = document.createElement("button");
-//   newGameBtn.textContent = "🚀 משחק חדש";
-//   newGameBtn.onclick = () => startNewGame();
-//   buttonsContainer.appendChild(newGameBtn);
-
-//   const resetBtn = document.createElement("button");
-//   resetBtn.textContent = "🗑️ איפוס טבלת שיאים";
-//   resetBtn.onclick = () => {
-//     if (confirm("האם את/ה בטוח/ה שברצונך לאפס את הטבלה?")) {
-//       const key = `scores_${currentUser.username}`;
-//       localStorage.removeItem(key);
-//       scoresHistory = [];
-//       displayScoreTable([]);
-//     }
-//   };
-//   buttonsContainer.appendChild(resetBtn);
-
-//   resultsDiv.appendChild(buttonsContainer);
-// }
 
 
 function displayScoreTable(scores = [], currentGameIndex = -1) {
@@ -396,12 +288,24 @@ function startGame() {
         enemy.style.width = "40px";
         enemy.style.height = "40px";
         enemy.style.background = "red";
+        enemy.style.color = "white"; // שיהיה ברור על הרקע האדום
+        enemy.style.display = "flex";
+        enemy.style.alignItems = "center";
+        enemy.style.justifyContent = "center";
+        enemy.style.fontWeight = "bold";
+    
+        // קביעת הטקסט לפי שורת האויב
+        let score = (4-row) * 5;
+        enemy.textContent = score;
+    
         enemy.style.top = `${row * 60 + 50}px`;
         enemy.style.left = `${col * 60 + 200}px`;
+    
         canvas.appendChild(enemy);
         enemies.push(enemy);
       }
     }
+    
 
     // תנועה וירי
     document.addEventListener("keydown", handleGameKeys);
@@ -557,9 +461,21 @@ enemies.forEach(enemy => {
       playerHitSound.play();
       b.remove();
       enemyBullets.splice(i, 1);
+      if (timeLeft <= 0) {
+        if (score < 100) {
+          alert("You can do better " + score);
+        } else {
+          alert("Winner!");
+        }
+        setTimeout(() => {
+          endGame(true, true);
+        }, 100);
+      }
+      
+
       if (lives <= 0) {
         alert("You Lost!");
-        endGame(true,true);
+        endGame(true, true);
       } else {
         playerX = window.innerWidth / 2 - 25;
         playerY = 0;
@@ -571,8 +487,9 @@ enemies.forEach(enemy => {
 
   // סיום אם אין אויבים
   if (enemies.length === 0) {
-    endGame(true,false);
     alert("Champion!");
+    endGame(true,false);
+    
   }
 
 }
@@ -624,33 +541,6 @@ function startNewGame() {
 
 
 
-
-// function endGame(saveScore = true) {
-//   clearInterval(gameTimer);
-//   clearInterval(gameInterval);
-//   clearInterval(window.enemyShootInterval);
-
-//   if (bgMusic) {
-//     bgMusic.pause();
-//     bgMusic.currentTime = 0;
-//   }
-
-//   if (saveScore && currentUser) {
-//     const key = `scores_${currentUser.username}`;
-//     const existingScores = JSON.parse(localStorage.getItem(key)) || [];
-
-//     existingScores.push(score);
-//     localStorage.setItem(key, JSON.stringify(existingScores));
-
-//     // send index of new score
-//     displayScoreTable(existingScores, existingScores.length - 1);
-
-//     alert("You can do better");
-//     showScreen("results");
-//   } else {
-//     showScreen("config");
-//   }
-// }
 function endGame(saveScore = true, didLose = false) {
   clearInterval(gameTimer);
   clearInterval(gameInterval);
@@ -668,11 +558,10 @@ function endGame(saveScore = true, didLose = false) {
     existingScores.push(score);
     localStorage.setItem(key, JSON.stringify(existingScores));
 
-    displayScoreTable(existingScores, existingScores.length - 1); // ✅ הצגת טבלה
-
-    if (didLose) {
-      alert("You can do better");
-    }
+    displayScoreTable(existingScores, existingScores.length - 1); 
+    // if (didLose) {
+    //   alert("You can do better");
+    // }
 
     showScreen("results");
   } else {
