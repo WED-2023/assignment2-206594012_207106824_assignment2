@@ -3,7 +3,7 @@
 // משתנים גלובליים למשחק
 let currentUser = null;
 let selectedShootKey = " ";
-let selectedGameTime = 120;
+let selectedGameTime = 10;
 let gameInterval = null;
 let gameTimer = null;
 let enemySpeed = 5;
@@ -464,13 +464,14 @@ enemies.forEach(enemy => {
       if (timeLeft <= 0) {
         if (score < 100) {
           alert("You can do better " + score);
+          endGame(true,false)
         } else {
           alert("Winner!");
+          endGame(true,false)
+
         }
-        setTimeout(() => {
-          endGame(true, true);
-        }, 100);
       }
+      
       
 
       if (lives <= 0) {
