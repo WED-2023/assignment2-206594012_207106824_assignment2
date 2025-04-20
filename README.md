@@ -33,7 +33,7 @@ You control a spaceship at the bottom of the screen. Your mission is to shoot do
 
 - HTML5
 - CSS3
-- JavaScript (Vanilla)
+- JavaScript
 
 ## How to Run
 
