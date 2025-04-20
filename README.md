@@ -39,5 +39,5 @@ You control a spaceship at the bottom of the screen. Your mission is to shoot do
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/space-battle.git
+   git clone https://wed-2023.github.io/assignment2-206594012_207106824_assignment2/
    cd space-battle
